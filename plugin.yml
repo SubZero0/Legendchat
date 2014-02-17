@@ -1,0 +1,29 @@
+name: Legendchat
+author: SubZero0
+main: br.com.devpaulo.legendchat.Main
+version: 1.0.0
+softdepend: [Vault]
+website: www.devpaulo.com.br
+commands:
+   legendchat:
+      description: Legendchat main command.
+      usage: /<command>
+      aliases: lc
+   channel:
+      description: Change your channel.
+      usage: /<command>
+      aliases: ch
+   tell:
+      description: Send a private message.
+      usage: /<command> <player> <message>
+      aliases: [msg, pm, t]
+   reply:
+      description: Reply a private message.
+      usage: /<command> <message>
+      aliases: r
+   afk:
+      description: Activate/Deactivate afk.
+      usage: /<command> [motive]
+   ignore:
+      description: Ignore a player.
+      usage: /<command> <player>

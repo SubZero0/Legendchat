@@ -1,0 +1,19 @@
+language: en
+default_channel: local
+bungeecord:
+  use: false
+  channel: bungeecord
+check_for_updates: true
+log_to_bukkit: false
+block_repeated_tags: true
+show_no_one_hears_you: true
+block_shortcuts_when_cancelled: true
+force_remove_double_spaces_from_bukkit: true
+format:
+  default: '{color}[{nick}] {groupprefix}{prefix}{bprefix2}{bprefix}&f{sender}{bsuffix}{suffix}{groupsuffix}{color}: {msg}'
+  bungeecord: '{color}[{nick}] -{server}- {groupprefix}{prefix}{bprefix2}{bprefix}&f{sender}{bsuffix}{suffix}{groupsuffix}{color}: {msg}'
+  spy: '&8[SPY] &7{msg}'
+private_message_format:
+  send: '&7To &2{receiver}&7: {msg}'
+  receive: '&7From &2{sender}&7: {msg}'
+  spy: '&8[SPY] &f{ignored} &7[{sender} -> {receiver}] {msg}'
