@@ -97,7 +97,9 @@ public class Listeners implements Listener {
 								else
 									message+=" "+split[i];
 							}
-							AsyncPlayerChatEvent event = new AsyncPlayerChatEvent(false, e.getPlayer(), "", new HashSet<Player>());
+							HashSet<Player> p = new HashSet<Player>();
+							p.add(e.getPlayer());
+							AsyncPlayerChatEvent event = new AsyncPlayerChatEvent(false, e.getPlayer(), "legendchat", p);
 							chats.put(event, false);
 							Bukkit.getPluginManager().callEvent(event);
 							c.sendMessage(e.getPlayer(), message, event.getFormat(), chats.get(event));

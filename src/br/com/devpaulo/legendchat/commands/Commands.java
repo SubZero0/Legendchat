@@ -403,7 +403,7 @@ public class Commands implements CommandExecutor {
 	}
 	
 	private void sendHelp(CommandSender sender) {
-		sender.sendMessage(ChatColor.GOLD+"=============== Legenchat - Command list ===============");
+		sender.sendMessage(ChatColor.GOLD+"============== Legendchat - Command list ==============");
 		if(sender.hasPermission("legendchat.admin.channel"))
 			sender.sendMessage(ChatColor.YELLOW+"/lc channel <create/delete> <channel>"+ChatColor.WHITE+" - Channel manager.");
 		if(sender.hasPermission("legendchat.admin.spy"))
@@ -420,7 +420,7 @@ public class Commands implements CommandExecutor {
 			sender.sendMessage(ChatColor.YELLOW+"/lc unmuteall"+ChatColor.WHITE+" - Unmute all players.");
 		if(sender.hasPermission("legendchat.admin.reload"))
 			sender.sendMessage(ChatColor.YELLOW+"/lc reload"+ChatColor.WHITE+" - Configuration and channels reload.");
-		sender.sendMessage(ChatColor.GOLD+"=================== Version V"+Bukkit.getPluginManager().getPlugin("Legendchat").getDescription().getVersion()+" ====================");
+		sender.sendMessage(ChatColor.GOLD+"=================== Version V"+Bukkit.getPluginManager().getPlugin("Legendchat").getDescription().getVersion()+" ===================");
 	}
 	
 	private boolean hasAnyPermission(CommandSender sender) {
