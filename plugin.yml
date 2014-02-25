@@ -1,7 +1,7 @@
 name: Legendchat
 author: SubZero0
 main: br.com.devpaulo.legendchat.Main
-version: 1.0.0
+version: 1.0.1
 softdepend: [Vault]
 website: www.devpaulo.com.br
 commands:

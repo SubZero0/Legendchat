@@ -29,6 +29,7 @@ public class ChannelManager {
 			channel2.set("format", c.getFormat());
 			channel2.set("color", c.getStringColor());
 			channel2.set("shortcutAllowed", c.isShortcutAllowed());
+			channel2.set("needFocus", c.isFocusNeeded());
 			channel2.set("distance", c.getMaxDistance());
 			channel2.set("crossworlds", c.isCrossworlds());
 			channel2.set("delayPerMessage", c.getDelayPerMessage());
@@ -84,7 +85,7 @@ public class ChannelManager {
 	
 	private void loadChannel(File channel) {
 		YamlConfiguration channel2 = YamlConfiguration.loadConfiguration(channel);
-		createChannel(new Channel(channel2.getString("name"),channel2.getString("nickname"),channel2.getString("format"),channel2.getString("color"),channel2.getBoolean("shortcutAllowed"),channel2.getDouble("distance"),channel2.getBoolean("crossworlds"),channel2.getInt("delayPerMessage"),channel2.getDouble("costPerMessage"),channel2.getBoolean("showCostMessage")));
+		createChannel(new Channel(channel2.getString("name"),channel2.getString("nickname"),channel2.getString("format"),channel2.getString("color"),channel2.getBoolean("shortcutAllowed"),channel2.getBoolean("needFocus"),channel2.getDouble("distance"),channel2.getBoolean("crossworlds"),channel2.getInt("delayPerMessage"),channel2.getDouble("costPerMessage"),channel2.getBoolean("showCostMessage")));
 	}
 	
 }

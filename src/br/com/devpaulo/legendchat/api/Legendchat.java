@@ -7,6 +7,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import br.com.devpaulo.legendchat.Main;
+import br.com.devpaulo.legendchat.censor.CensorManager;
 import br.com.devpaulo.legendchat.channels.Channel;
 import br.com.devpaulo.legendchat.channels.ChannelManager;
 import br.com.devpaulo.legendchat.delays.DelayManager;
@@ -23,6 +24,7 @@ public class Legendchat {
 	private static boolean forceRemoveDoubleSpacesFromBukkit = false;
 	private static boolean blockShortcutsWhenCancelled = false;
 	private static boolean isBungeecordActive = false;
+	private static boolean isCensorActive = false;
 	private static Channel defaultChannel = null;
 	private static Channel bungeecordChannel = null;
 	private static Plugin plugin = null;
@@ -58,6 +60,10 @@ public class Legendchat {
 		return new MuteManager();
 	}
 	
+	public static CensorManager getCensorManager() {
+		return new CensorManager();
+	}
+	
 	public static Channel getDefaultChannel() {
 		return defaultChannel;
 	}
@@ -84,6 +90,10 @@ public class Legendchat {
 	
 	public static boolean isBungeecordActive() {
 		return isBungeecordActive;
+	}
+	
+	public static boolean isCensorActive() {
+		return isCensorActive;
 	}
 	
 	public static Channel getBungeecordChannel() {
@@ -123,6 +133,8 @@ public class Legendchat {
 		isBungeecordActive=Main.bungeeActive;
 		bungeecordChannel=getChannelManager().getChannelByName(fc.getString("bungeecord.channel"));
 		plugin=Bukkit.getPluginManager().getPlugin("Legendchat");
+		isCensorActive=fc.getBoolean("censor.use");
+		Legendchat.getCensorManager().loadCensoredWords(fc.getStringList("censor.censored_words"));
 		language=Main.language;
 		formats.clear();
 		pm_formats.clear();

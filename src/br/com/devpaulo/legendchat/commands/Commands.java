@@ -4,7 +4,6 @@ import java.io.File;
 
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -125,7 +124,7 @@ public class Commands implements CommandExecutor {
 				return true;
 			}
 			if(args.length==0) {
-				sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "(/r)eply <"+Legendchat.getMessageManager().getMessage("message")+">"));
+				sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/r <"+Legendchat.getMessageManager().getMessage("message")+">"));
 				return true;
 			}
 			if(!Legendchat.getPrivateMessageManager().playerHasReply((Player)sender)) {
@@ -187,7 +186,7 @@ public class Commands implements CommandExecutor {
 			if(sender==Bukkit.getConsoleSender())
 				return false;
 			if(args.length==0) {
-				sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "(/ch)annel <"+Legendchat.getMessageManager().getMessage("channel")+">"));
+				sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/ch <"+Legendchat.getMessageManager().getMessage("channel")+">"));
 			}
 			else {
 				Channel c = null;
@@ -213,12 +212,13 @@ public class Commands implements CommandExecutor {
 			}
 			else {
 				if(args[0].equalsIgnoreCase("reload")) {
-					if(!sender.hasPermission("legendchat.admin.reload")) {
+					if(!sender.hasPermission("legendchat.admin.reload")&&!sender.hasPermission("legendchat.admin")) {
 						sender.sendMessage(Legendchat.getMessageManager().getMessage("error6"));
 						return true;
 					}
 					Plugin lc = Bukkit.getPluginManager().getPlugin("Legendchat");
 					lc.reloadConfig();
+					Legendchat.getCensorManager().loadCensoredWords(lc.getConfig().getStringList("censor.censored_words"));
 					Legendchat.getChannelManager().loadChannels();
 					Legendchat.getMessageManager().loadMessages(new File(lc.getDataFolder(),"language_"+lc.getConfig().getString("language")+".yml"));
 					Main.bungeeActive=false;
@@ -230,7 +230,7 @@ public class Commands implements CommandExecutor {
 					return true;
 				}
 				if(args[0].equalsIgnoreCase("channel")) {
-					if(!sender.hasPermission("legendchat.admin.channel")) {
+					if(!sender.hasPermission("legendchat.admin.channel")&&!sender.hasPermission("legendchat.admin")) {
 						sender.sendMessage(Legendchat.getMessageManager().getMessage("error6"));
 						return true;
 					}
@@ -245,7 +245,7 @@ public class Commands implements CommandExecutor {
 							return true;
 						}
 						sender.sendMessage(Legendchat.getMessageManager().getMessage("message3").replace("@channel", args[2]));
-						Legendchat.getChannelManager().createChannel(new Channel(WordUtils.capitalizeFully(args[2]),Character.toString(args[2].charAt(0)).toLowerCase(),"{default}","GRAY",true,0,true,0,0,false));
+						Legendchat.getChannelManager().createChannel(new Channel(WordUtils.capitalizeFully(args[2]),Character.toString(args[2].charAt(0)).toLowerCase(),"{default}","GRAY",true,false,0,true,0,0,false));
 					}
 					else if(args[1].equalsIgnoreCase("delete")) {
 						Channel c = Legendchat.getChannelManager().getChannelByName(args[2].toLowerCase());
@@ -261,8 +261,36 @@ public class Commands implements CommandExecutor {
 					}
 					return true;
 				}
+				if(args[0].equalsIgnoreCase("playerch")) {
+					if(!sender.hasPermission("legendchat.admin.playerch")&&!sender.hasPermission("legendchat.admin")) {
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("error6"));
+						return true;
+					}
+					if(args.length<3) {
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/lc playerch <player> <channel-name>"));
+						return true;
+					}
+					Player p = Bukkit.getPlayer(args[1]);
+					if(p==null) {
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("error8"));
+						return true;
+					}
+					Channel c = null;
+					ChannelManager cm = Legendchat.getChannelManager();
+					c = cm.getChannelByName(args[2]);
+					if(c==null)
+						c = cm.getChannelByNickname(args[2]);
+					if(c==null) {
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("error4"));
+						return true;
+					}
+					Legendchat.getPlayerManager().setPlayerChannel(p, c, false);
+					sender.sendMessage(Legendchat.getMessageManager().getMessage("message16").replace("@player", p.getName()).replace("@channel", c.getName()));
+					p.sendMessage(Legendchat.getMessageManager().getMessage("message17").replace("@player", sender.getName()).replace("@channel", c.getName()));
+					return true;
+				}
 				else if(args[0].equalsIgnoreCase("spy")) {
-					if(!sender.hasPermission("legendchat.admin.spy")) {
+					if(!sender.hasPermission("legendchat.admin.spy")&&!sender.hasPermission("legendchat.admin")) {
 						sender.sendMessage(Legendchat.getMessageManager().getMessage("error6"));
 						return true;
 					}
@@ -281,7 +309,7 @@ public class Commands implements CommandExecutor {
 					return true;
 				}
 				else if(args[0].equalsIgnoreCase("hide")) {
-					if(!sender.hasPermission("legendchat.admin.hide")) {
+					if(!sender.hasPermission("legendchat.admin.hide")&&!sender.hasPermission("legendchat.admin")) {
 						sender.sendMessage(Legendchat.getMessageManager().getMessage("error6"));
 						return true;
 					}
@@ -300,7 +328,7 @@ public class Commands implements CommandExecutor {
 					return true;
 				}
 				else if(args[0].equalsIgnoreCase("mute")) {
-					if(!sender.hasPermission("legendchat.admin.mute")) {
+					if(!sender.hasPermission("legendchat.admin.mute")&&!sender.hasPermission("legendchat.admin")) {
 						sender.sendMessage(Legendchat.getMessageManager().getMessage("error6"));
 						return true;
 					}
@@ -343,7 +371,7 @@ public class Commands implements CommandExecutor {
 					return true;
 				}
 				else if(args[0].equalsIgnoreCase("unmute")) {
-					if(!sender.hasPermission("legendchat.admin.unmute")) {
+					if(!sender.hasPermission("legendchat.admin.unmute")&&!sender.hasPermission("legendchat.admin")) {
 						sender.sendMessage(Legendchat.getMessageManager().getMessage("error6"));
 						return true;
 					}
@@ -366,7 +394,7 @@ public class Commands implements CommandExecutor {
 					return true;
 				}
 				else if(args[0].equalsIgnoreCase("muteall")) {
-					if(!sender.hasPermission("legendchat.admin.muteall")) {
+					if(!sender.hasPermission("legendchat.admin.muteall")&&!sender.hasPermission("legendchat.admin")) {
 						sender.sendMessage(Legendchat.getMessageManager().getMessage("error6"));
 						return true;
 					}
@@ -379,7 +407,7 @@ public class Commands implements CommandExecutor {
 					return true;
 				}
 				else if(args[0].equalsIgnoreCase("unmuteall")) {
-					if(!sender.hasPermission("legendchat.admin.muteall")) {
+					if(!sender.hasPermission("legendchat.admin.muteall")&&!sender.hasPermission("legendchat.admin")) {
 						sender.sendMessage(Legendchat.getMessageManager().getMessage("error6"));
 						return true;
 					}
@@ -403,24 +431,27 @@ public class Commands implements CommandExecutor {
 	}
 	
 	private void sendHelp(CommandSender sender) {
-		sender.sendMessage(ChatColor.GOLD+"============== Legendchat - Command list ==============");
-		if(sender.hasPermission("legendchat.admin.channel"))
-			sender.sendMessage(ChatColor.YELLOW+"/lc channel <create/delete> <channel>"+ChatColor.WHITE+" - Channel manager.");
-		if(sender.hasPermission("legendchat.admin.spy"))
-			sender.sendMessage(ChatColor.YELLOW+"/lc spy"+ChatColor.WHITE+" - Listen to all channels.");
-		if(sender.hasPermission("legendchat.admin.hide"))
-			sender.sendMessage(ChatColor.YELLOW+"/lc hide"+ChatColor.WHITE+" - Hide from distance channels.");
-		if(sender.hasPermission("legendchat.admin.mute"))
-			sender.sendMessage(ChatColor.YELLOW+"/lc mute <player> [time {minutes}]"+ChatColor.WHITE+" - Mute a player.");
-		if(sender.hasPermission("legendchat.admin.unmute"))
-			sender.sendMessage(ChatColor.YELLOW+"/lc unmute <player>"+ChatColor.WHITE+" - Unmute a player.");
-		if(sender.hasPermission("legendchat.admin.muteall"))
-			sender.sendMessage(ChatColor.YELLOW+"/lc muteall"+ChatColor.WHITE+" - Mute all players.");
-		if(sender.hasPermission("legendchat.admin.unmuteall"))
-			sender.sendMessage(ChatColor.YELLOW+"/lc unmuteall"+ChatColor.WHITE+" - Unmute all players.");
-		if(sender.hasPermission("legendchat.admin.reload"))
-			sender.sendMessage(ChatColor.YELLOW+"/lc reload"+ChatColor.WHITE+" - Configuration and channels reload.");
-		sender.sendMessage(ChatColor.GOLD+"=================== Version V"+Bukkit.getPluginManager().getPlugin("Legendchat").getDescription().getVersion()+" ===================");
+		sender.sendMessage(Legendchat.getMessageManager().getMessage("listcmd1"));
+		String msg2 = Legendchat.getMessageManager().getMessage("listcmd2");
+		if(sender.hasPermission("legendchat.admin.channel")||sender.hasPermission("legendchat.admin"))
+			sender.sendMessage(msg2.replace("@command", "/lc channel <create/delete> <channel>").replace("@description", "Channel manager"));
+		if(sender.hasPermission("legendchat.admin.playerch")||sender.hasPermission("legendchat.admin"))
+			sender.sendMessage(msg2.replace("@command", "/lc playerch <player> <channel>").replace("@description", "Change player channel"));
+		if(sender.hasPermission("legendchat.admin.spy")||sender.hasPermission("legendchat.admin"))
+			sender.sendMessage(msg2.replace("@command", "/lc spy").replace("@description", "Listen to all channels"));
+		if(sender.hasPermission("legendchat.admin.hide")||sender.hasPermission("legendchat.admin"))
+			sender.sendMessage(msg2.replace("@command", "/lc hide").replace("@description", "Hide from distance channels"));
+		if(sender.hasPermission("legendchat.admin.mute")||sender.hasPermission("legendchat.admin"))
+			sender.sendMessage(msg2.replace("@command", "/lc mute <player> [time {minutes}]").replace("@description", "Mute a player"));
+		if(sender.hasPermission("legendchat.admin.unmute")||sender.hasPermission("legendchat.admin"))
+			sender.sendMessage(msg2.replace("@command", "/lc unmute <player>").replace("@description", "Unmute a player"));
+		if(sender.hasPermission("legendchat.admin.muteall")||sender.hasPermission("legendchat.admin"))
+			sender.sendMessage(msg2.replace("@command", "/lc muteall").replace("@description", "Mute all players"));
+		if(sender.hasPermission("legendchat.admin.unmuteall")||sender.hasPermission("legendchat.admin"))
+			sender.sendMessage(msg2.replace("@command", "/lc unmuteall").replace("@description", "Unmute all players"));
+		if(sender.hasPermission("legendchat.admin.reload")||sender.hasPermission("legendchat.admin"))
+			sender.sendMessage(msg2.replace("@command", "/lc reload").replace("@description", "Configuration and channels reload"));
+		sender.sendMessage(Legendchat.getMessageManager().getMessage("listcmd3").replace("@version", Legendchat.getPlugin().getDescription().getVersion()));
 	}
 	
 	private boolean hasAnyPermission(CommandSender sender) {
@@ -439,6 +470,8 @@ public class Commands implements CommandExecutor {
 		if(sender.hasPermission("legendchat.admin.unmuteall"))
 			return true;
 		if(sender.hasPermission("legendchat.admin.reload"))
+			return true;
+		if(sender.hasPermission("legendchat.admin"))
 			return true;
 		return false;
 	}

@@ -81,6 +81,9 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 		}
 		reloadConfig();
 		
+		if(new Updater().updateConfig())
+			getLogger().info("Configuration file updated!");
+		
 		try {File file2 = new File(getDataFolder(),"language_br.yml");if(!file2.exists()) {saveResource("language_br.yml",false);getLogger().info("Saved language_br.yml");}}
 		catch(Exception e) {}
 		try {File file2 = new File(getDataFolder(),"language_en.yml");if(!file2.exists()) {saveResource("language_en.yml",false);getLogger().info("Saved language_en.yml");}}
@@ -89,11 +92,13 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 		File channels = new File(getDataFolder(),"channels");
 		if(!channels.exists()) {
 			channels.mkdir();
-			Legendchat.getChannelManager().createChannel(new Channel("global","g","{default}","GRAY",true,0,true,0,0,true));
-			Legendchat.getChannelManager().createChannel(new Channel("local","l","{default}","YELLOW",true,60,false,0,0,true));
-			Legendchat.getChannelManager().createChannel(new Channel("bungeecord","b","{bungeecord}","LIGHTPURPLE",true,0,false,0,0,true));
+			Legendchat.getChannelManager().createChannel(new Channel("global","g","{default}","GRAY",true,false,0,true,0,0,true));
+			Legendchat.getChannelManager().createChannel(new Channel("local","l","{default}","YELLOW",true,false,60,false,0,0,true));
+			Legendchat.getChannelManager().createChannel(new Channel("bungeecord","b","{bungeecord}","LIGHTPURPLE",true,false,0,false,0,0,true));
 		}
 		
+		if(new Updater().updateChannels())
+			getLogger().info("Channels file updated!");
 		Legendchat.getChannelManager().loadChannels();
 		
 		if (!setupPermissions()) {
@@ -126,12 +131,9 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 		
 		language=getConfig().getString("language").trim();
 		File lang = new File(getDataFolder(),"language_"+language+".yml");
-		if(!lang.exists()) {
-			lang = new File(getDataFolder(),"language_en.yml");
-			language="en";
-		}
 		
-		Legendchat.getMessageManager().loadMessages(lang);
+		if(new Updater().updateAndLoadLanguage(lang))
+			getLogger().info("Language file updated!");
 		
 		Legendchat.load();
 		

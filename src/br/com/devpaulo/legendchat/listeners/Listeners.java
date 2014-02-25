@@ -50,8 +50,34 @@ public class Listeners implements Listener {
 		Legendchat.getIgnoreManager().playerDisconnect(e.getPlayer());
 	}
 	
-	private HashMap<AsyncPlayerChatEvent,Boolean> chats = new HashMap<AsyncPlayerChatEvent,Boolean>();
+	private static HashMap<AsyncPlayerChatEvent,Boolean> chats = new HashMap<AsyncPlayerChatEvent,Boolean>();
 	
+	public static HashMap<AsyncPlayerChatEvent, Boolean> getChats() {
+		HashMap<AsyncPlayerChatEvent,Boolean> clone = new HashMap<AsyncPlayerChatEvent,Boolean>();
+		clone.putAll(chats);
+		return clone;
+	}
+
+	public static void addChat(AsyncPlayerChatEvent e, Boolean b) {
+		if(chats.containsKey(e))
+			chats.put(e, b);
+	}
+	
+	public static void removeChat(AsyncPlayerChatEvent e) {
+		if(!chats.containsKey(e))
+			chats.remove(e);
+	}
+	
+	public static boolean hasChat(AsyncPlayerChatEvent e) {
+		return chats.containsKey(e);
+	}
+	
+	public static boolean getChat(AsyncPlayerChatEvent e) {
+		if(chats.containsKey(e))
+			return chats.get(e);
+		return true;
+	}
+
 	@EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
 	private void onChat(AsyncPlayerChatEvent e) {
 		if(e.getMessage()!=null&&!chats.containsKey(e)&&!e.isCancelled()) {
@@ -66,7 +92,7 @@ public class Listeners implements Listener {
 					e.getPlayer().sendMessage(Legendchat.getMessageManager().getMessage("error1"));
 			}
 		}
-		else if(e.getMessage()!=null) {
+		else if(e.getMessage()!=null&&chats.containsKey(e)) {
 			chats.remove(e);
 			chats.put(e, e.isCancelled());
 		}

@@ -11,11 +11,13 @@ import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import br.com.devpaulo.legendchat.Main;
 import br.com.devpaulo.legendchat.api.Legendchat;
 import br.com.devpaulo.legendchat.api.events.BungeecordChatMessageEvent;
 import br.com.devpaulo.legendchat.api.events.ChatMessageEvent;
+import br.com.devpaulo.legendchat.listeners.Listeners;
 import br.com.devpaulo.legendchat.utils.Utils;
 
 public class Channel {
@@ -25,18 +27,20 @@ public class Channel {
 	private String color = "";
 	private String color2 = "";
 	private boolean shortcut = false;
+	private boolean focus = false;
 	private double distance = 0;
 	private boolean crossworlds = false;
 	private double cost = 0;
 	private boolean show_cost_msg = false;
 	private int delay = 0;
-	public Channel(String name, String nick, String format, String color, boolean shortcut, double distance, boolean crossworlds, int delay, double cost,boolean show_cost_msg) {
+	public Channel(String name, String nick, String format, String color, boolean shortcut, boolean focus, double distance, boolean crossworlds, int delay, double cost,boolean show_cost_msg) {
 		this.name=name;
 		this.nick=nick;
 		this.format=format;
 		this.color=translateStringColor(color);
 		color2=color;
 		this.shortcut=shortcut;
+		this.focus=focus;
 		this.distance=distance;
 		this.crossworlds=crossworlds;
 		this.cost=cost;
@@ -68,6 +72,10 @@ public class Channel {
 		return shortcut;
 	}
 	
+	public boolean isFocusNeeded() {
+		return focus;
+	}
+	
 	public boolean isCrossworlds() {
 		return crossworlds;
 	}
@@ -95,12 +103,27 @@ public class Channel {
 		return Legendchat.getPlayerManager().getPlayersInChannel(this);
 	}
 	
+	public void sendMessage(Player sender, String message) {
+		HashSet<Player> p = new HashSet<Player>();
+		p.add(sender);
+		AsyncPlayerChatEvent event = new AsyncPlayerChatEvent(false, sender, "legendchat", p);
+		Listeners.addChat(event, false);
+		Bukkit.getPluginManager().callEvent(event);
+		sendMessage(sender, message, event.getFormat(), Listeners.getChat(event));
+		Listeners.removeChat(event);
+	}
+	
 	public void sendMessage(Player sender, String message, String bukkit_format, boolean cancelled) {
 		if(!sender.hasPermission("legendchat.channel."+getName().toLowerCase()+".chat")&&!sender.hasPermission("legendchat.admin")) {
 			sender.sendMessage(Legendchat.getMessageManager().getMessage("error2"));
 			return;
 		}
 		if(sender.hasPermission("legendchat.channel."+getName().toLowerCase()+".blockwrite")&&!sender.hasPermission("legendchat.admin")) {
+			sender.sendMessage(Legendchat.getMessageManager().getMessage("error2"));
+			return;
+		}
+		if(isFocusNeeded()) {
+			if(Legendchat.getPlayerManager().getPlayerChannel(sender)!=this)
 			sender.sendMessage(Legendchat.getMessageManager().getMessage("error2"));
 			return;
 		}
@@ -148,6 +171,11 @@ public class Channel {
 		for(Player p : recipients2)
 			if(Legendchat.getIgnoreManager().hasPlayerIgnoredPlayer(p, sender.getName()))
 				recipients.remove(p);
+		recipients2.addAll(recipients);
+		if(isFocusNeeded())
+			for(Player p : recipients2)
+				if(Legendchat.getPlayerManager().getPlayerChannel(p)!=this)
+					recipients.remove(p);
 		recipients2.clear();
 		boolean gastou = false;
 		if(!Main.block_econ&&getMessageCost()>0) {
@@ -167,7 +195,15 @@ public class Channel {
 			n_format_p_p = bukkit_format.split("<")[0];
 			String[] n_format = bukkit_format.split("<")[1].split(">")[0].split("%1$s");
 			if(n_format.length>0)
-				n_format_p = n_format[0].replace("%1$s", "");
+				n_format_p = n_format[0].replace("%1$s", "").replace("{factions_relcolor}", "");
+			if(n_format.length>1)
+				n_format_s = n_format[1];
+		}
+		else if(bukkit_format.contains("<")&&bukkit_format.contains(">")&&bukkit_format.contains("%s")) {
+			n_format_p_p = bukkit_format.split("<")[0];
+			String[] n_format = bukkit_format.split("<")[1].split(">")[0].split("%s");
+			if(n_format.length>0)
+				n_format_p = n_format[0].replace("%s", "");
 			if(n_format.length>1)
 				n_format_s = n_format[1];
 		}
@@ -187,6 +223,10 @@ public class Channel {
 			tags.put("suffix", Main.chat.getPlayerSuffix(sender));
 			tags.put("groupprefix", Main.chat.getGroupPrefix(sender.getWorld(), Main.chat.getPrimaryGroup(sender)));
 			tags.put("groupsuffix", Main.chat.getGroupSuffix(sender.getWorld(), Main.chat.getPrimaryGroup(sender)));
+			for(String g : Main.chat.getPlayerGroups(sender)) {
+				tags.put(g.toLowerCase()+"prefix", Main.chat.getGroupPrefix(sender.getWorld(), g));
+				tags.put(g.toLowerCase()+"suffix", Main.chat.getGroupSuffix(sender.getWorld(), g));
+			}
 		}
 		ChatMessageEvent e = new ChatMessageEvent(this,sender,message,Legendchat.format(getFormat()),getFormat(),recipients,tags,cancelled);
 		Bukkit.getPluginManager().callEvent(e);
@@ -194,6 +234,8 @@ public class Channel {
 			return;
 		sender = e.getSender();
 		message = e.getMessage();
+		if(Legendchat.isCensorActive())
+			message = Legendchat.getCensorManager().censorFunction(message);
 		String completa = e.getFormat();
 		if(Legendchat.blockRepeatedTags()) {
 			if(completa.contains("prefix")&&completa.contains("groupprefix"))
