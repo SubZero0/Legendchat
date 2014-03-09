@@ -69,12 +69,16 @@ public class Commands implements CommandExecutor {
 					}
 					if(Bukkit.getPluginCommand(nick.toLowerCase())!=null)
 						if(Bukkit.getPluginCommand(nick.toLowerCase()).isRegistered()) {
-							sender.sendMessage(Legendchat.getMessageManager().getMessage("tc_error22"));
+							sender.sendMessage(Legendchat.getMessageManager().getMessage("tc_error23"));
 							return true;
 						}
 					Set<Permission> perms = Bukkit.getPluginManager().getDefaultPermissions(true);
-					if(perms.contains(Bukkit.getPluginManager().getPermission("bukkit.command."+name))||perms.contains(Bukkit.getPluginManager().getPermission("bukkit.command."+nick))) {
+					if(perms.contains(Bukkit.getPluginManager().getPermission("bukkit.command."+name))) {
 						sender.sendMessage(Legendchat.getMessageManager().getMessage("tc_error22"));
+						return true;
+					}
+					if(perms.contains(Bukkit.getPluginManager().getPermission("bukkit.command."+nick))) {
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("tc_error23"));
 						return true;
 					}
 					if(Legendchat.getChannelManager().getChannelByNameOrNickname(name)!=null) {
