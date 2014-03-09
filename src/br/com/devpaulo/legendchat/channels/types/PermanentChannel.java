@@ -219,9 +219,9 @@ public class PermanentChannel implements Channel {
 		tags.put("sender", sender.getDisplayName());
 		tags.put("plainsender", sender.getName());
 		tags.put("world", sender.getWorld().getName());
-		tags.put("bprefix", (Legendchat.forceRemoveDoubleSpacesFromBukkit()?n_format_p_p.replace("  ", " "):n_format_p_p));
-		tags.put("bprefix2", (Legendchat.forceRemoveDoubleSpacesFromBukkit()?n_format_p.replace("  ", " "):n_format_p));
-		tags.put("bsuffix", (Legendchat.forceRemoveDoubleSpacesFromBukkit()?n_format_s.replace("  ", " "):n_format_s));
+		tags.put("bprefix", (Legendchat.forceRemoveDoubleSpacesFromBukkit()?(n_format_p_p.equals(" ")?"":n_format_p_p.replace("  ", " ")):n_format_p_p));
+		tags.put("bprefix2", (Legendchat.forceRemoveDoubleSpacesFromBukkit()?(n_format_p.equals(" ")?"":n_format_p.replace("  ", " ")):n_format_p));
+		tags.put("bsuffix", (Legendchat.forceRemoveDoubleSpacesFromBukkit()?(n_format_s.equals(" ")?"":n_format_s.replace("  ", " ")):n_format_s));
 		tags.put("server", Legendchat.getMessageManager().getMessage("bungeecord_server"));
 		if(!Main.block_chat) {
 			tags.put("prefix", Main.chat.getPlayerPrefix(sender));
