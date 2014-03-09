@@ -8,8 +8,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 public class MessageManager {
-	private static HashMap<String,String> msgs = new  HashMap<String,String>();
-	private static File file = null;
+	private HashMap<String,String> msgs = new  HashMap<String,String>();
+	private File file = null;
 	public MessageManager() {
 	}
 	

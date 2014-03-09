@@ -2,10 +2,10 @@ package br.com.devpaulo.legendchat.delays;
 
 import java.util.HashMap;
 
-import br.com.devpaulo.legendchat.channels.Channel;
+import br.com.devpaulo.legendchat.channels.types.Channel;
 
 public class DelayManager {
-	private static HashMap<String,Delay> delays = new HashMap<String,Delay>();
+	private HashMap<String,Delay> delays = new HashMap<String,Delay>();
 	public DelayManager() {
 	}
 	

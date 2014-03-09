@@ -1,4 +1,4 @@
-package br.com.devpaulo.legendchat.channels;
+package br.com.devpaulo.legendchat.channels.types;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -20,7 +20,7 @@ import br.com.devpaulo.legendchat.api.events.ChatMessageEvent;
 import br.com.devpaulo.legendchat.listeners.Listeners;
 import br.com.devpaulo.legendchat.utils.Utils;
 
-public class Channel {
+public class BungeecordChannel implements Channel {
 	private String name = "";
 	private String nick = "";
 	private String format = "";
@@ -33,12 +33,12 @@ public class Channel {
 	private double cost = 0;
 	private boolean show_cost_msg = false;
 	private int delay = 0;
-	public Channel(String name, String nick, String format, String color, boolean shortcut, boolean focus, double distance, boolean crossworlds, int delay, double cost,boolean show_cost_msg) {
+	public BungeecordChannel(String name, String nick, String format, String color, boolean shortcut, boolean focus, double distance, boolean crossworlds, int delay, double cost,boolean show_cost_msg) {
 		this.name=name;
 		this.nick=nick;
 		this.format=format;
 		this.color=translateStringColor(color);
-		color2=color;
+		color2=color.toLowerCase();
 		this.shortcut=shortcut;
 		this.focus=focus;
 		this.distance=distance;
@@ -99,18 +99,26 @@ public class Channel {
 		return delay;
 	}
 	
-	public List<Player> getPlayersInChannel() {
-		return Legendchat.getPlayerManager().getPlayersInChannel(this);
+	public List<Player> getPlayersFocusedInChannel() {
+		return Legendchat.getPlayerManager().getPlayersFocusedInChannel(this);
+	}
+	
+	public List<Player> getPlayersWhoCanSeeChannel() {
+		return Legendchat.getPlayerManager().getPlayersWhoCanSeeChannel(this);
 	}
 	
 	public void sendMessage(Player sender, String message) {
+		if(!Legendchat.sendFakeMessageToChat()) {
+			sendMessage(sender, message, "", false);
+			return;
+		}
 		HashSet<Player> p = new HashSet<Player>();
 		p.add(sender);
 		AsyncPlayerChatEvent event = new AsyncPlayerChatEvent(false, sender, "legendchat", p);
-		Listeners.addChat(event, false);
+		Listeners.addFakeChat(event, false);
 		Bukkit.getPluginManager().callEvent(event);
-		sendMessage(sender, message, event.getFormat(), Listeners.getChat(event));
-		Listeners.removeChat(event);
+		sendMessage(sender, message, event.getFormat(), Listeners.getFakeChat(event));
+		Listeners.removeFakeChat(event);
 	}
 	
 	public void sendMessage(Player sender, String message, String bukkit_format, boolean cancelled) {
@@ -123,9 +131,10 @@ public class Channel {
 			return;
 		}
 		if(isFocusNeeded()) {
-			if(Legendchat.getPlayerManager().getPlayerChannel(sender)!=this)
-			sender.sendMessage(Legendchat.getMessageManager().getMessage("error2"));
-			return;
+			if(Legendchat.getPlayerManager().getPlayerFocusedChannel(sender)!=this) {
+				sender.sendMessage(Legendchat.getMessageManager().getMessage("error12"));
+				return;
+			}
 		}
 		int delay = Legendchat.getDelayManager().getPlayerDelayFromChannel(sender.getName(), this);
 		if(delay>0) {
@@ -174,7 +183,7 @@ public class Channel {
 		recipients2.addAll(recipients);
 		if(isFocusNeeded())
 			for(Player p : recipients2)
-				if(Legendchat.getPlayerManager().getPlayerChannel(p)!=this)
+				if(Legendchat.getPlayerManager().getPlayerFocusedChannel(p)!=this)
 					recipients.remove(p);
 		recipients2.clear();
 		boolean gastou = false;
@@ -214,9 +223,9 @@ public class Channel {
 		tags.put("sender", sender.getDisplayName());
 		tags.put("plainsender", sender.getName());
 		tags.put("world", sender.getWorld().getName());
-		tags.put("bprefix", (Legendchat.forceRemoveDoubleSpacesFromBukkit()?Utils.removeDoubleSpaces(n_format_p_p):n_format_p_p));
-		tags.put("bprefix2", (Legendchat.forceRemoveDoubleSpacesFromBukkit()?Utils.removeDoubleSpaces(n_format_p):n_format_p));
-		tags.put("bsuffix", (Legendchat.forceRemoveDoubleSpacesFromBukkit()?Utils.removeDoubleSpaces(n_format_s):n_format_s));
+		tags.put("bprefix", (Legendchat.forceRemoveDoubleSpacesFromBukkit()?n_format_p_p.replace("  ", " "):n_format_p_p));
+		tags.put("bprefix2", (Legendchat.forceRemoveDoubleSpacesFromBukkit()?n_format_p.replace("  ", " "):n_format_p));
+		tags.put("bsuffix", (Legendchat.forceRemoveDoubleSpacesFromBukkit()?n_format_s.replace("  ", " "):n_format_s));
 		tags.put("server", Legendchat.getMessageManager().getMessage("bungeecord_server"));
 		if(!Main.block_chat) {
 			tags.put("prefix", Main.chat.getPlayerPrefix(sender));
@@ -226,6 +235,17 @@ public class Channel {
 			for(String g : Main.chat.getPlayerGroups(sender)) {
 				tags.put(g.toLowerCase()+"prefix", Main.chat.getGroupPrefix(sender.getWorld(), g));
 				tags.put(g.toLowerCase()+"suffix", Main.chat.getGroupSuffix(sender.getWorld(), g));
+			}
+		}
+		HashMap<String,String> ttt = Legendchat.textToTag();
+		if(ttt.size()>0) {
+			HashSet<Player> p = new HashSet<Player>();
+			p.add(sender);
+			String[] sep = bukkit_format.split("°º°");
+			int i=1;
+			for(String n : ttt.keySet()) {
+				tags.put(n, sep[i]);
+				i++;
 			}
 		}
 		ChatMessageEvent e = new ChatMessageEvent(this,sender,message,Legendchat.format(getFormat()),getFormat(),recipients,tags,cancelled);
@@ -284,6 +304,9 @@ public class Channel {
 		
 		if(Legendchat.logToBukkit())
 			Bukkit.getConsoleSender().sendMessage(completa);
+		
+		if(Legendchat.logToFile())
+			Legendchat.getLogManager().addLogToCache(ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', completa)));
 		
 		if(Legendchat.isBungeecordActive()) {
 			if(Legendchat.getBungeecordChannel()==this) {

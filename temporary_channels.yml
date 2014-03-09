@@ -1,0 +1,23 @@
+enabled: true
+format: '{default}'
+color: GREEN
+shortcutAllowed: true
+needFocus: false
+distance: 0.0
+crossworlds: true
+delayPerMessage: 0
+costPerMessage: 0.0
+showCostMessage: true
+maxChannelNameLength: 15
+maxChannelNicknameLength: 5
+maxJoinsPerPlayer: 0
+maxAdminPerPlayer: 1
+maxJoinsPerChannel: 0
+maxModeratorsPerChannel: 0
+moderator:
+  canKick: true
+  canInvite: true
+blocked_names:
+- admin
+- mod
+blocked_colors: []

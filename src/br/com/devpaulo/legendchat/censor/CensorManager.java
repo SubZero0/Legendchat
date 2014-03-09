@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CensorManager {
-	private static List<String> words = new ArrayList<String>();
+	private List<String> words = new ArrayList<String>();
 	public CensorManager() {
 	}
 	

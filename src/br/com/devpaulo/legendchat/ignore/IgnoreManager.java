@@ -7,7 +7,7 @@ import java.util.List;
 import org.bukkit.entity.Player;
 
 public class IgnoreManager {
-	private static HashMap<Player,List<String>> ignoreList =  new HashMap<Player,List<String>>();
+	private HashMap<Player,List<String>> ignoreList =  new HashMap<Player,List<String>>();
 	public IgnoreManager() {
 	}
 	

@@ -12,9 +12,9 @@ import br.com.devpaulo.legendchat.api.Legendchat;
 import br.com.devpaulo.legendchat.api.events.PrivateMessageEvent;
 
 public class PrivateMessageManager {
-	private static HashMap<Player,Player> telling = new HashMap<Player,Player>();
-	private static HashMap<Player,Player> reply = new HashMap<Player,Player>();
-	private static HashMap<Player,String> afk = new HashMap<Player,String>();
+	private HashMap<Player,Player> telling = new HashMap<Player,Player>();
+	private HashMap<Player,Player> reply = new HashMap<Player,Player>();
+	private HashMap<Player,String> afk = new HashMap<Player,String>();
 	
 	public void tellPlayer(Player from, Player to, String msg) {
 		if(to==null) {

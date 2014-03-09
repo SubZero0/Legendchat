@@ -1,8 +1,9 @@
 name: Legendchat
 author: SubZero0
 main: br.com.devpaulo.legendchat.Main
-version: 1.0.1
+version: 1.1.0
 softdepend: [Vault]
+load: STARTUP
 website: www.devpaulo.com.br
 commands:
    legendchat:
@@ -27,3 +28,7 @@ commands:
    ignore:
       description: Ignore a player.
       usage: /<command> <player>
+   tempchannel:
+      description: Temporary channel main command.
+      usage: /<command>
+      aliases: tc

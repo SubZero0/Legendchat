@@ -5,10 +5,15 @@ bungeecord:
   channel: bungeecord
 check_for_updates: true
 log_to_bukkit: false
+log_to_file:
+  use: false
+  time: 10
 block_repeated_tags: true
 show_no_one_hears_you: true
 block_shortcuts_when_cancelled: true
 force_remove_double_spaces_from_bukkit: true
+send_fake_message_to_chat: true
+text_to_tag: []
 format:
   default: '{color}[{nick}] {groupprefix}{prefix}{bprefix2}{bprefix}&f{sender}{bsuffix}{suffix}{groupsuffix}{color}: {msg}'
   bungeecord: '{color}[{nick}] -{server}- {groupprefix}{prefix}{bprefix2}{bprefix}&f{sender}{bsuffix}{suffix}{groupsuffix}{color}: {msg}'

@@ -8,10 +8,14 @@ import org.bukkit.plugin.Plugin;
 
 import br.com.devpaulo.legendchat.Main;
 import br.com.devpaulo.legendchat.censor.CensorManager;
-import br.com.devpaulo.legendchat.channels.Channel;
 import br.com.devpaulo.legendchat.channels.ChannelManager;
+import br.com.devpaulo.legendchat.channels.TemporaryChannelManager;
+import br.com.devpaulo.legendchat.channels.types.BungeecordChannel;
+import br.com.devpaulo.legendchat.channels.types.Channel;
+import br.com.devpaulo.legendchat.configurations.ConfigManager;
 import br.com.devpaulo.legendchat.delays.DelayManager;
 import br.com.devpaulo.legendchat.ignore.IgnoreManager;
+import br.com.devpaulo.legendchat.logs.LogManager;
 import br.com.devpaulo.legendchat.messages.MessageManager;
 import br.com.devpaulo.legendchat.mutes.MuteManager;
 import br.com.devpaulo.legendchat.players.PlayerManager;
@@ -22,46 +26,74 @@ public class Legendchat {
 	private static boolean blockRepeatedTags = false;
 	private static boolean showNoOneHearsYou = false;
 	private static boolean forceRemoveDoubleSpacesFromBukkit = false;
+	private static boolean sendFakeMessageToChat = false;
 	private static boolean blockShortcutsWhenCancelled = false;
 	private static boolean isBungeecordActive = false;
 	private static boolean isCensorActive = false;
+	private static boolean logToFile = false;
+	private static int logToFileTime = 10;
 	private static Channel defaultChannel = null;
-	private static Channel bungeecordChannel = null;
+	private static BungeecordChannel bungeecordChannel = null;
 	private static Plugin plugin = null;
 	private static HashMap<String,String> formats = new HashMap<String,String>();
 	private static HashMap<String,String> pm_formats = new HashMap<String,String>();
+	private static HashMap<String,String> text_to_tag = new HashMap<String,String>();
 	private static String language = "en";
 	
+	private static ChannelManager cm = null;
+	private static PlayerManager pm = null;
+	private static MessageManager mm = null;
+	private static IgnoreManager im = null;
+	private static PrivateMessageManager pmm = null;
+	private static DelayManager dm = null;
+	private static MuteManager mum = null;
+	private static CensorManager cem = null;
+	private static LogManager lm = null;
+	private static TemporaryChannelManager tcm = null;
+	private static ConfigManager com = null;
+	
 	public static ChannelManager getChannelManager() {
-		return new ChannelManager();
+		return cm;
 	}
 	
 	public static PlayerManager getPlayerManager() {
-		return new PlayerManager();
+		return pm;
 	}
 	
 	public static MessageManager getMessageManager() {
-		return new MessageManager();
+		return mm;
 	}
 	
 	public static IgnoreManager getIgnoreManager() {
-		return new IgnoreManager();
+		return im;
 	}
 	
 	public static PrivateMessageManager getPrivateMessageManager() {
-		return new PrivateMessageManager();
+		return pmm;
 	}
 	
 	public static DelayManager getDelayManager() {
-		return new DelayManager();
+		return dm;
 	}
 	
 	public static MuteManager getMuteManager() {
-		return new MuteManager();
+		return mum;
 	}
 	
 	public static CensorManager getCensorManager() {
-		return new CensorManager();
+		return cem;
+	}
+
+	public static LogManager getLogManager() {
+		return lm;
+	}
+	
+	public static TemporaryChannelManager getTemporaryChannelManager() {
+		return tcm;
+	}
+	
+	public static ConfigManager getConfigManager() {
+		return com;
 	}
 	
 	public static Channel getDefaultChannel() {
@@ -84,6 +116,10 @@ public class Legendchat {
 		return forceRemoveDoubleSpacesFromBukkit;
 	}
 	
+	public static boolean sendFakeMessageToChat() {
+		return sendFakeMessageToChat;
+	}
+	
 	public static boolean blockShortcutsWhenCancelled() {
 		return blockShortcutsWhenCancelled;
 	}
@@ -96,7 +132,15 @@ public class Legendchat {
 		return isCensorActive;
 	}
 	
-	public static Channel getBungeecordChannel() {
+	public static boolean logToFile() {
+		return logToFile;
+	}
+	
+	public static int getLogToFileTime() {
+		return logToFileTime;
+	}
+	
+	public static BungeecordChannel getBungeecordChannel() {
 		return bungeecordChannel;
 	}
 	
@@ -122,19 +166,44 @@ public class Legendchat {
 		return language;
 	}
 	
-	public static void load() {
+	public static HashMap<String,String> textToTag() {
+		HashMap<String,String> h = new HashMap<String,String>();
+		h.putAll(text_to_tag);
+		return h;
+	}
+	
+	public static void load(boolean all) {
+		plugin=Bukkit.getPluginManager().getPlugin("Legendchat");
+		if(!all) {
+			cm=new ChannelManager();
+			pm=new PlayerManager();
+			mm=new MessageManager();
+			im=new IgnoreManager();
+			pmm=new PrivateMessageManager();
+			dm=new DelayManager();
+			mum=new MuteManager();
+			cem=new CensorManager();
+			lm=new LogManager();
+			tcm=new TemporaryChannelManager();
+			com=new ConfigManager();
+			return;
+		}
 		FileConfiguration fc = Bukkit.getPluginManager().getPlugin("Legendchat").getConfig();
 		defaultChannel=Legendchat.getChannelManager().getChannelByName(fc.getString("default_channel").toLowerCase());
 		logToBukkit=fc.getBoolean("log_to_bukkit");
 		blockRepeatedTags=fc.getBoolean("block_repeated_tags");
 		showNoOneHearsYou=fc.getBoolean("show_no_one_hears_you");
 		forceRemoveDoubleSpacesFromBukkit=fc.getBoolean("force_remove_double_spaces_from_bukkit");
+		sendFakeMessageToChat=fc.getBoolean("send_fake_message_to_chat");
 		blockShortcutsWhenCancelled=fc.getBoolean("block_shortcuts_when_cancelled");
 		isBungeecordActive=Main.bungeeActive;
-		bungeecordChannel=getChannelManager().getChannelByName(fc.getString("bungeecord.channel"));
-		plugin=Bukkit.getPluginManager().getPlugin("Legendchat");
+		bungeecordChannel=(BungeecordChannel) getChannelManager().getChannelByName(fc.getString("bungeecord.channel"));
 		isCensorActive=fc.getBoolean("censor.use");
 		Legendchat.getCensorManager().loadCensoredWords(fc.getStringList("censor.censored_words"));
+		logToFile=fc.getBoolean("log_to_file.use");
+		logToFileTime=fc.getInt("log_to_file.time");
+		if(logToFile)
+			lm.startSavingScheduler();
 		language=Main.language;
 		formats.clear();
 		pm_formats.clear();
@@ -142,5 +211,10 @@ public class Legendchat {
 			formats.put(f.toLowerCase(), fc.getString("format."+f));
 		for(String f : fc.getConfigurationSection("private_message_format").getKeys(false))
 			pm_formats.put(f.toLowerCase(), fc.getString("private_message_format."+f));
+		for(String f : fc.getStringList("text_to_tag")) {
+			String[] s = f.split(";");
+			text_to_tag.put(s[0].toLowerCase(), s[1]);
+		}
+		com.loadConfigs();
 	}
 }

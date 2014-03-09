@@ -44,19 +44,4 @@ public class Utils {
 		if(msg.contains("&R")&&(p.hasPermission("legendchat.color.reset")||p.hasPermission("legendchat.color.allformats")||p.hasPermission("legendchat.admin"))) {msg=msg.replace("&R", ChatColor.RESET.toString());}
 		return msg;
 	}
-	
-	public static String removeDoubleSpaces(String msg) {
-		String msg_c = "";
-		for(int i=0;i<msg.length();i++) {
-			if(i>0) {
-				if(Character.compare(msg.charAt(i), msg.charAt(i-1))==0&&Character.compare(msg.charAt(i), ' ')==0)
-					continue;
-				else
-					msg_c+=msg.charAt(i);
-			}
-			else
-				msg_c+=msg.charAt(i);
-		}
-		return (msg_c.equals(" ")?"":msg_c);
-	}
 }

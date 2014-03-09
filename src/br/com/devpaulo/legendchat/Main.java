@@ -16,7 +16,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import br.com.devpaulo.legendchat.api.Legendchat;
-import br.com.devpaulo.legendchat.channels.Channel;
+import br.com.devpaulo.legendchat.channels.types.BungeecordChannel;
+import br.com.devpaulo.legendchat.channels.types.PermanentChannel;
 import br.com.devpaulo.legendchat.commands.Commands;
 import br.com.devpaulo.legendchat.listeners.Listeners;
 import br.com.devpaulo.legendchat.updater.Updater;
@@ -34,7 +35,8 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 	
 	@Override
     public void onEnable() {
-		getLogger().info("Enabling Legendchat (V"+getDescription().getVersion()+") - Author: SubZero0");
+		getLogger().info("Legendchat (V"+getDescription().getVersion()+") - Author: SubZero0");
+		Legendchat.load(false);
 		
 		getServer().getPluginCommand("legendchat").setExecutor(new Commands());
 		getServer().getPluginCommand("channel").setExecutor(new Commands());
@@ -42,6 +44,7 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 		getServer().getPluginCommand("reply").setExecutor(new Commands());
 		getServer().getPluginCommand("afk").setExecutor(new Commands());
 		getServer().getPluginCommand("ignore").setExecutor(new Commands());
+		getServer().getPluginCommand("tempchannel").setExecutor(new Commands());
 		getServer().getPluginManager().registerEvents(new Listeners(), this);
 		
 		getServer().getMessenger().registerOutgoingPluginChannel(this, "Legendchat");
@@ -66,7 +69,6 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 			}
 			catch(Exception e) {
 				getLogger().info("Error when checking for updates!");
-				e.printStackTrace();
 			}
 		}
 		
@@ -88,18 +90,28 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 		catch(Exception e) {}
 		try {File file2 = new File(getDataFolder(),"language_en.yml");if(!file2.exists()) {saveResource("language_en.yml",false);getLogger().info("Saved language_en.yml");}}
 		catch(Exception e) {}
+		try {File file2 = new File(getDataFolder(),"language_cn.yml");if(!file2.exists()) {saveResource("language_cn.yml",false);getLogger().info("Saved language_cn.yml");}}
+		catch(Exception e) {}
+		try {File file2 = new File(getDataFolder(),"temporary_channels.yml");if(!file2.exists()) {saveResource("temporary_channels.yml",false);getLogger().info("Saved temporary_channels.yml");}}
+		catch(Exception e) {}
 		
 		File channels = new File(getDataFolder(),"channels");
 		if(!channels.exists()) {
 			channels.mkdir();
-			Legendchat.getChannelManager().createChannel(new Channel("global","g","{default}","GRAY",true,false,0,true,0,0,true));
-			Legendchat.getChannelManager().createChannel(new Channel("local","l","{default}","YELLOW",true,false,60,false,0,0,true));
-			Legendchat.getChannelManager().createChannel(new Channel("bungeecord","b","{bungeecord}","LIGHTPURPLE",true,false,0,false,0,0,true));
+			Legendchat.getChannelManager().createPermanentChannel(new PermanentChannel("global","g","{default}","GRAY",true,false,0,true,0,0,true));
+			Legendchat.getChannelManager().createPermanentChannel(new PermanentChannel("local","l","{default}","YELLOW",true,false,60,false,0,0,true));
+			Legendchat.getChannelManager().createPermanentChannel(new BungeecordChannel("bungeecord","b","{bungeecord}","LIGHTPURPLE",true,false,0,false,0,0,true));
 		}
 		
 		if(new Updater().updateChannels())
 			getLogger().info("Channels file updated!");
 		Legendchat.getChannelManager().loadChannels();
+		
+		language=getConfig().getString("language").trim();
+		File lang = new File(getDataFolder(),"language_"+language+".yml");
+		
+		if(new Updater().updateAndLoadLanguage(lang))
+			getLogger().info("Language file updated!");
 		
 		if (!setupPermissions()) {
 			getLogger().warning("Vault is not linked to any permissions plugin.");
@@ -129,16 +141,10 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 			if(Legendchat.getChannelManager().existsChannel(getConfig().getString("bungeecord.channel")))
 				bungeeActive=true;
 		
-		language=getConfig().getString("language").trim();
-		File lang = new File(getDataFolder(),"language_"+language+".yml");
-		
-		if(new Updater().updateAndLoadLanguage(lang))
-			getLogger().info("Language file updated!");
-		
-		Legendchat.load();
+		Legendchat.load(true);
 		
 		for(Player p : getServer().getOnlinePlayers())
-			Legendchat.getPlayerManager().setPlayerChannel(p, Legendchat.getDefaultChannel(), false);
+			Legendchat.getPlayerManager().setPlayerFocusedChannel(p, Legendchat.getDefaultChannel(), false);
 	}
 	
 	private boolean setupPermissions() {
@@ -174,6 +180,7 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 	@Override
     public void onDisable() {
 		getLogger().info("Disabling Legendchat - Author: SubZero0");
+		Legendchat.getLogManager().saveLog();
 	}
 
 	@Override
@@ -198,7 +205,7 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 				tags.put(pair[0].replace(" ", ""), (pair.length==1?"":pair[1]));
 			}
 			this.getServer().getLogger().info("[Legendchat] Incoming message from server "+tags.get("server"));
-			Channel c = Legendchat.getBungeecordChannel();
+			BungeecordChannel c = Legendchat.getBungeecordChannel();
 			if(c!=null)
 				c.sendBungeecordMessage(tags, msg);
 		}

@@ -3,8 +3,8 @@ package br.com.devpaulo.legendchat.mutes;
 import java.util.HashMap;
 
 public class MuteManager {
-	private static HashMap<String,Mute> mutes = new HashMap<String,Mute>();
-	private static boolean muteall = false;
+	private HashMap<String,Mute> mutes = new HashMap<String,Mute>();
+	private boolean muteall = false;
 	public MuteManager() {
 	}
 	
