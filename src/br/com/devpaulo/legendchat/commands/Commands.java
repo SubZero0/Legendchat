@@ -1,6 +1,5 @@
 package br.com.devpaulo.legendchat.commands;
 
-import java.io.File;
 import java.util.List;
 import java.util.Set;
 
@@ -10,6 +9,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.Plugin;
 
@@ -19,9 +24,14 @@ import br.com.devpaulo.legendchat.channels.ChannelManager;
 import br.com.devpaulo.legendchat.channels.types.Channel;
 import br.com.devpaulo.legendchat.channels.types.PermanentChannel;
 import br.com.devpaulo.legendchat.channels.types.TemporaryChannel;
+import br.com.devpaulo.legendchat.listeners.Listeners;
+import br.com.devpaulo.legendchat.listeners.Listeners_old;
+import br.com.devpaulo.legendchat.updater.Updater;
 
+@SuppressWarnings("deprecation")
 public class Commands implements CommandExecutor {
-
+	private CommandSender console = Bukkit.getConsoleSender();
+	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if(cmd.getName().equalsIgnoreCase("tempchannel")) {
@@ -104,7 +114,7 @@ public class Commands implements CommandExecutor {
 						return true;
 					}
 					if(l.size()>1&&args.length<2) {
-						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc delete <channel>"));
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc delete <"+Legendchat.getMessageManager().getMessage("channel")+">"));
 						return true;
 					}
 					TemporaryChannel c = Legendchat.getTemporaryChannelManager().getTempChannelByNameOrNickname((args.length<2?l.get(0).getName():args[1]));
@@ -141,7 +151,7 @@ public class Commands implements CommandExecutor {
 						return true;
 					}
 					if(l.size()>1&&args.length<3) {
-						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc color <color-code> <channel>"));
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc color <color-code> <"+Legendchat.getMessageManager().getMessage("channel")+">"));
 						return true;
 					}
 					TemporaryChannel c = Legendchat.getTemporaryChannelManager().getTempChannelByNameOrNickname((args.length<3?l.get(0).getName():args[2]));
@@ -193,7 +203,7 @@ public class Commands implements CommandExecutor {
 						return true;
 					}
 					if(l.size()>1&&args.length<2) {
-						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc join <channel>"));
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc join <"+Legendchat.getMessageManager().getMessage("channel")+">"));
 						return true;
 					}
 					TemporaryChannel c = Legendchat.getTemporaryChannelManager().getTempChannelByNameOrNickname((args.length<2?l.get(0).getName():args[1]));
@@ -236,7 +246,7 @@ public class Commands implements CommandExecutor {
 						return true;
 					}
 					if(l.size()>1&&args.length<2) {
-						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc leave <channel>"));
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc leave <"+Legendchat.getMessageManager().getMessage("channel")+">"));
 						return true;
 					}
 					TemporaryChannel c = Legendchat.getTemporaryChannelManager().getTempChannelByNameOrNickname((args.length<2?l.get(0).getName():args[1]));
@@ -265,7 +275,7 @@ public class Commands implements CommandExecutor {
 						return true;
 					}
 					if(l.size()>1&&args.length<3) {
-						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc mod <player> <channel>"));
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc mod <player> <"+Legendchat.getMessageManager().getMessage("channel")+">"));
 						return true;
 					}
 					TemporaryChannel c = Legendchat.getTemporaryChannelManager().getTempChannelByNameOrNickname((args.length<3?l.get(0).getName():args[2]));
@@ -317,7 +327,7 @@ public class Commands implements CommandExecutor {
 						return true;
 					}
 					if(l.size()>1&&args.length<3) {
-						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc member <player> <channel>"));
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc member <player> <"+Legendchat.getMessageManager().getMessage("channel")+">"));
 						return true;
 					}
 					TemporaryChannel c = Legendchat.getTemporaryChannelManager().getTempChannelByNameOrNickname((args.length<3?l.get(0).getName():args[2]));
@@ -359,7 +369,7 @@ public class Commands implements CommandExecutor {
 						return true;
 					}
 					if(l.size()>1&&args.length<2) {
-						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc mods <channel>"));
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc mods <"+Legendchat.getMessageManager().getMessage("channel")+">"));
 						return true;
 					}
 					TemporaryChannel c = Legendchat.getTemporaryChannelManager().getTempChannelByNameOrNickname((args.length<2?l.get(0).getName():args[1]));
@@ -388,7 +398,7 @@ public class Commands implements CommandExecutor {
 						return true;
 					}
 					if(l.size()>1&&args.length<2) {
-						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc members <channel>"));
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc members <"+Legendchat.getMessageManager().getMessage("channel")+">"));
 						return true;
 					}
 					TemporaryChannel c = Legendchat.getTemporaryChannelManager().getTempChannelByNameOrNickname((args.length<2?l.get(0).getName():args[1]));
@@ -417,7 +427,7 @@ public class Commands implements CommandExecutor {
 						return true;
 					}
 					if(l.size()>1&&args.length<2) {
-						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc leader <channel>"));
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc leader <"+Legendchat.getMessageManager().getMessage("channel")+">"));
 						return true;
 					}
 					TemporaryChannel c = Legendchat.getTemporaryChannelManager().getTempChannelByNameOrNickname((args.length<2?l.get(0).getName():args[1]));
@@ -443,7 +453,7 @@ public class Commands implements CommandExecutor {
 						return true;
 					}
 					if(l.size()>1&&args.length<3) {
-						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc invite <player> <channel>"));
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc invite <player> <"+Legendchat.getMessageManager().getMessage("channel")+">"));
 						return true;
 					}
 					TemporaryChannel c = Legendchat.getTemporaryChannelManager().getTempChannelByNameOrNickname((args.length<3?l.get(0).getName():args[2]));
@@ -491,7 +501,7 @@ public class Commands implements CommandExecutor {
 						return true;
 					}
 					if(l.size()>1&&args.length<3) {
-						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc kick <player> <channel>"));
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tc kick <player> <"+Legendchat.getMessageManager().getMessage("channel")+">"));
 						return true;
 					}
 					TemporaryChannel c = Legendchat.getTemporaryChannelManager().getTempChannelByNameOrNickname((args.length<3?l.get(0).getName():args[2]));
@@ -535,6 +545,40 @@ public class Commands implements CommandExecutor {
 					c.user_remove(p);
 					return true;
 				}
+				if(args[0].equalsIgnoreCase("list")) {
+					int page=1;
+					if(args.length>1) {
+						try {
+							page=Integer.parseInt(args[1]);
+						}
+						catch(Exception e) {
+							sender.sendMessage(Legendchat.getMessageManager().getMessage("tc_error26"));
+							return true;
+						}
+					}
+					if(page<1) {
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("tc_error27"));
+						return true;
+					}
+					List<TemporaryChannel> cs = Legendchat.getTemporaryChannelManager().getAllTempChannels();
+					int maxpage=(int) Math.floor(cs.size()/9.0);
+					if(maxpage==0)
+						maxpage=1;
+					if(page>maxpage) {
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("tc_error28").replace("@maxpage", Integer.toString(maxpage)));
+						return true;
+					}
+					sender.sendMessage(Legendchat.getMessageManager().getMessage("tcs_list1").replace("@page", Integer.toString(page)).replace("@maxpage", Integer.toString(maxpage)));
+					for(int i=page*9-9;i<page*9-1;i++) {
+						if(cs.size()<=i) {
+							if(i==0)
+								sender.sendMessage(Legendchat.getMessageManager().getMessage("nothing"));
+							break;
+						}
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("tcs_list2").replace("@name", cs.get(i).getName()).replace("@nick", cs.get(i).getNickname()).replace("@leader", cs.get(i).leader_get().getName()));
+					}
+					return true;
+				}
 				if(args[0].equalsIgnoreCase("mychannels")) {
 					String r1 = Legendchat.getMessageManager().getMessage("tc_r1");
 					String r2 = Legendchat.getMessageManager().getMessage("tc_r2");
@@ -551,6 +595,46 @@ public class Commands implements CommandExecutor {
 					return true;
 				}
 				sendHelpTempChannel(sender);
+			}
+			return true;
+		}
+		if(cmd.getName().equalsIgnoreCase("mute")) {
+			if(sender==Bukkit.getConsoleSender())
+				return false;
+			if(args.length==0) {
+				sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/mute <"+Legendchat.getMessageManager().getMessage("channel")+">"));
+				if(Legendchat.getIgnoreManager().playerHasIgnoredChannelsList((Player)sender)) {
+					String mlist = "";
+					for(Channel c : Legendchat.getIgnoreManager().getPlayerIgnoredChannelsList((Player)sender)) {
+						if(mlist.length()==0)
+							mlist=c.getName();
+						else
+							mlist+=", "+c.getName();
+					}
+					sender.sendMessage(Legendchat.getMessageManager().getMessage("message20").replace("@channels", (mlist.length()==0?"...":mlist)));
+				}
+				return true;
+			}
+			Channel c = Legendchat.getChannelManager().getChannelByNameOrNickname(args[0]);
+			if(c==null) {
+				sender.sendMessage(Legendchat.getMessageManager().getMessage("error4"));
+				return true;
+			}
+			if(Legendchat.getIgnoreManager().hasPlayerIgnoredChannel((Player)sender, c)) {
+				Legendchat.getIgnoreManager().playerUnignoreChannel((Player)sender, c);
+				sender.sendMessage(Legendchat.getMessageManager().getMessage("message19").replace("@channel", c.getName()));
+			}
+			else {
+				if(sender.hasPermission("legendchat.channel."+c.getName().toLowerCase()+".blockmute")&&!sender.hasPermission("legendchat.admin")) {
+					sender.sendMessage(Legendchat.getMessageManager().getMessage("error13"));
+					return true;
+				}
+				if(!c.getPlayersWhoCanSeeChannel().contains((Player)sender)) {
+					sender.sendMessage(Legendchat.getMessageManager().getMessage("error4"));
+					return true;
+				}
+				Legendchat.getIgnoreManager().playerIgnoreChannel((Player)sender, c);
+				sender.sendMessage(Legendchat.getMessageManager().getMessage("message18").replace("@channel", c.getName()));
 			}
 			return true;
 		}
@@ -585,33 +669,39 @@ public class Commands implements CommandExecutor {
 			return true;
 		}
 		if(cmd.getName().equalsIgnoreCase("tell")) {
-			if(sender==Bukkit.getConsoleSender())
-				return false;
 			if(sender.hasPermission("legendchat.block.tell")&&!sender.hasPermission("legendchat.admin")) {
 				sender.sendMessage(Legendchat.getMessageManager().getMessage("error6"));
 				return true;
 			}
 			if(args.length==0) {
-				if(Legendchat.getPrivateMessageManager().isPlayerTellLocked((Player)sender)) {
-					Legendchat.getPrivateMessageManager().unlockPlayerTell((Player)sender);
+				if(Legendchat.getPrivateMessageManager().isPlayerTellLocked(sender)) {
+					Legendchat.getPrivateMessageManager().unlockPlayerTell(sender);
 					sender.sendMessage(Legendchat.getMessageManager().getMessage("message11"));
 				}
 				else
 					sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tell <player> ["+Legendchat.getMessageManager().getMessage("message")+"]"));
 				return true;
 			}
-			Player to = Bukkit.getPlayer(args[0]);
+			CommandSender to = Bukkit.getPlayer(args[0]);
 			if(to==null) {
-				sender.sendMessage(Legendchat.getMessageManager().getMessage("error8"));
-				return true;
+				if(args[0].equalsIgnoreCase("console"))
+					to=console;
+				else {
+					sender.sendMessage(Legendchat.getMessageManager().getMessage("error8"));
+					return true;
+				}
 			}
-			if(to==(Player)sender) {
+			if(to==sender) {
 				sender.sendMessage(Legendchat.getMessageManager().getMessage("error9"));
 				return true;
 			}
 			if(args.length==1) {
-				if(Legendchat.getPrivateMessageManager().isPlayerTellLocked((Player)sender)&&Legendchat.getPrivateMessageManager().getPlayerLockedTellWith((Player)sender)==to) {
-					Legendchat.getPrivateMessageManager().unlockPlayerTell((Player)sender);
+				if(sender==console) {
+					sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/tell <player> ["+Legendchat.getMessageManager().getMessage("message")+"]"));
+					return true;
+				}
+				if(Legendchat.getPrivateMessageManager().isPlayerTellLocked(sender)&&Legendchat.getPrivateMessageManager().getPlayerLockedTellWith(sender)==to) {
+					Legendchat.getPrivateMessageManager().unlockPlayerTell(sender);
 					sender.sendMessage(Legendchat.getMessageManager().getMessage("message11"));
 				}
 				else {
@@ -619,27 +709,29 @@ public class Commands implements CommandExecutor {
 						sender.sendMessage(Legendchat.getMessageManager().getMessage("error6"));
 						return true;
 					}
-					if(Legendchat.getPrivateMessageManager().isAfk(to)) {
+					if(to!=console)
+						if(Legendchat.getAfkManager().isAfk((Player)to)) {
+							sender.sendMessage(Legendchat.getMessageManager().getMessage("pm_error2_1"));
+							String mot = Legendchat.getAfkManager().getPlayerAfkMotive((Player)to);
+							if(mot!=null)
+								if(mot.length()>0)
+									sender.sendMessage(Legendchat.getMessageManager().getMessage("pm_error2_2").replace("@motive", mot));
+							return true;
+						}
+					Legendchat.getPrivateMessageManager().lockPlayerTell(sender, to);
+					sender.sendMessage(Legendchat.getMessageManager().getMessage("message10").replace("@player", to.getName()));
+				}
+			}
+			else {
+				if(to!=console)
+					if(Legendchat.getAfkManager().isAfk((Player)to)) {
 						sender.sendMessage(Legendchat.getMessageManager().getMessage("pm_error2_1"));
-						String mot = Legendchat.getPrivateMessageManager().getPlayerAfkMotive(to);
+						String mot = Legendchat.getAfkManager().getPlayerAfkMotive((Player)to);
 						if(mot!=null)
 							if(mot.length()>0)
 								sender.sendMessage(Legendchat.getMessageManager().getMessage("pm_error2_2").replace("@motive", mot));
 						return true;
 					}
-					Legendchat.getPrivateMessageManager().lockPlayerTell((Player)sender, to);
-					sender.sendMessage(Legendchat.getMessageManager().getMessage("message10").replace("@player", to.getName()));
-				}
-			}
-			else {
-				if(Legendchat.getPrivateMessageManager().isAfk(to)) {
-					sender.sendMessage(Legendchat.getMessageManager().getMessage("pm_error2_1"));
-					String mot = Legendchat.getPrivateMessageManager().getPlayerAfkMotive(to);
-					if(mot!=null)
-						if(mot.length()>0)
-							sender.sendMessage(Legendchat.getMessageManager().getMessage("pm_error2_2").replace("@motive", mot));
-					return true;
-				}
 				String msg = "";
 				for(int i=1;i<args.length;i++) {
 					if(msg.length()==0)
@@ -647,13 +739,11 @@ public class Commands implements CommandExecutor {
 					else
 						msg+=" "+args[i];
 				}
-				Legendchat.getPrivateMessageManager().tellPlayer((Player)sender, to,msg);
+				Legendchat.getPrivateMessageManager().tellPlayer(sender, to,msg);
 			}
 			return true;
 		}
 		if(cmd.getName().equalsIgnoreCase("reply")) {
-			if(sender==Bukkit.getConsoleSender())
-				return false;
 			if(sender.hasPermission("legendchat.block.reply")&&!sender.hasPermission("legendchat.admin")) {
 				sender.sendMessage(Legendchat.getMessageManager().getMessage("error6"));
 				return true;
@@ -662,19 +752,20 @@ public class Commands implements CommandExecutor {
 				sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/r <"+Legendchat.getMessageManager().getMessage("message")+">"));
 				return true;
 			}
-			if(!Legendchat.getPrivateMessageManager().playerHasReply((Player)sender)) {
+			if(!Legendchat.getPrivateMessageManager().playerHasReply(sender)) {
 				sender.sendMessage(Legendchat.getMessageManager().getMessage("pm_error1"));
 				return true;
 			}
-			Player sendto = Legendchat.getPrivateMessageManager().getPlayerReply((Player)sender);
-			if(Legendchat.getPrivateMessageManager().isAfk(sendto)) {
-				sender.sendMessage(Legendchat.getMessageManager().getMessage("pm_error2_1"));
-				String mot = Legendchat.getPrivateMessageManager().getPlayerAfkMotive(sendto);
-				if(mot!=null)
-					if(mot.length()>0)
-						sender.sendMessage(Legendchat.getMessageManager().getMessage("pm_error2_2").replace("@motive", mot));
-				return true;
-			}
+			CommandSender sendto = Legendchat.getPrivateMessageManager().getPlayerReply(sender);
+			if(sendto!=console)
+				if(Legendchat.getAfkManager().isAfk((Player)sendto)) {
+					sender.sendMessage(Legendchat.getMessageManager().getMessage("pm_error2_1"));
+					String mot = Legendchat.getAfkManager().getPlayerAfkMotive((Player)sendto);
+					if(mot!=null)
+						if(mot.length()>0)
+							sender.sendMessage(Legendchat.getMessageManager().getMessage("pm_error2_2").replace("@motive", mot));
+					return true;
+				}
 			String msg = "";
 			for(int i=0;i<args.length;i++) {
 				if(msg.length()==0)
@@ -682,7 +773,7 @@ public class Commands implements CommandExecutor {
 				else
 					msg+=" "+args[i];
 			}
-			Legendchat.getPrivateMessageManager().replyPlayer((Player)sender, msg);
+			Legendchat.getPrivateMessageManager().replyPlayer(sender, msg);
 			return true;
 		}
 		if(cmd.getName().equalsIgnoreCase("afk")) {
@@ -692,8 +783,8 @@ public class Commands implements CommandExecutor {
 				sender.sendMessage(Legendchat.getMessageManager().getMessage("error6"));
 				return true;
 			}
-			if(Legendchat.getPrivateMessageManager().isAfk((Player)sender)&&args.length==0) {
-				Legendchat.getPrivateMessageManager().removeAfk((Player)sender);
+			if(Legendchat.getAfkManager().isAfk((Player)sender)&&args.length==0) {
+				Legendchat.getAfkManager().removeAfk((Player)sender);
 				sender.sendMessage(Legendchat.getMessageManager().getMessage("message13"));
 			}
 			else {
@@ -710,10 +801,10 @@ public class Commands implements CommandExecutor {
 						sender.sendMessage(Legendchat.getMessageManager().getMessage("error6"));
 						return true;
 					}
-				Legendchat.getPrivateMessageManager().setAfk((Player)sender,mot);
+				Legendchat.getAfkManager().setAfk((Player)sender,mot);
 				sender.sendMessage(Legendchat.getMessageManager().getMessage("message12"));
 				if(mot.length()==0)
-					sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/afk ["+Legendchat.getMessageManager().getMessage("motive")+"]"));
+					sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/afk ["+Legendchat.getMessageManager().getMessage("reason")+"]"));
 			}
 			return true;
 		}
@@ -722,6 +813,16 @@ public class Commands implements CommandExecutor {
 				return false;
 			if(args.length==0) {
 				sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/ch <"+Legendchat.getMessageManager().getMessage("channel")+">"));
+				String mlist = "";
+				for(Channel c : Legendchat.getChannelManager().getChannels()) {
+					if(Legendchat.getPlayerManager().canPlayerSeeChannel((Player)sender, c)) {
+						if(mlist.length()==0)
+							mlist=c.getName();
+						else
+							mlist+=", "+c.getName();
+					}
+				}
+				sender.sendMessage(Legendchat.getMessageManager().getMessage("message21").replace("@channels", (mlist.length()==0?Legendchat.getMessageManager().getMessage("nothing"):mlist)));
 			}
 			else {
 				Channel c = null;
@@ -761,11 +862,24 @@ public class Commands implements CommandExecutor {
 					lc.reloadConfig();
 					Legendchat.getCensorManager().loadCensoredWords(lc.getConfig().getStringList("censor.censored_words"));
 					Legendchat.getChannelManager().loadChannels();
-					Legendchat.getMessageManager().loadMessages(new File(lc.getDataFolder(),"language_"+lc.getConfig().getString("language")+".yml"));
+					new Updater().updateAndLoadLanguage(lc.getConfig().getString("language"));
 					Main.bungeeActive=false;
 					if(lc.getConfig().getBoolean("bungeecord.use"))
 						if(Legendchat.getChannelManager().existsChannel(lc.getConfig().getString("bungeecord.channel")))
 							Main.bungeeActive=true;
+					PlayerJoinEvent.getHandlerList().unregister(lc);
+					PlayerQuitEvent.getHandlerList().unregister(lc);
+					PlayerKickEvent.getHandlerList().unregister(lc);
+					AsyncPlayerChatEvent.getHandlerList().unregister(lc);
+					PlayerCommandPreprocessEvent.getHandlerList().unregister(lc);
+					try {
+						Class.forName("org.bukkit.event.player.PlayerChatEvent");
+						PlayerChatEvent.getHandlerList().unregister(lc);
+					} catch(ClassNotFoundException e) {}
+					if(lc.getConfig().getBoolean("use_async_chat_event",true))
+						lc.getServer().getPluginManager().registerEvents(new Listeners(), lc);
+					else
+						lc.getServer().getPluginManager().registerEvents(new Listeners_old(), lc);
 					Legendchat.load(true);
 					sender.sendMessage(Legendchat.getMessageManager().getMessage("message2"));
 					return true;
@@ -960,13 +1074,13 @@ public class Commands implements CommandExecutor {
 					Bukkit.broadcastMessage(Legendchat.getMessageManager().getMessage("mute_msg8").replace("@player", sender.getName()));
 					return true;
 				}
-				else if(args[0].equalsIgnoreCase("deltempchannel")) {
+				else if(args[0].equalsIgnoreCase("deltc")) {
 					if(!sender.hasPermission("legendchat.admin.tempchannel")&&!sender.hasPermission("legendchat.admin")) {
 						sender.sendMessage(Legendchat.getMessageManager().getMessage("error6"));
 						return true;
 					}
 					if(args.length<2) {
-						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/lc deltempchannel <channel>"));
+						sender.sendMessage(Legendchat.getMessageManager().getMessage("wrongcmd").replace("@command", "/lc deltc <channel>"));
 						return true;
 					}
 					TemporaryChannel c = Legendchat.getTemporaryChannelManager().getTempChannelByNameOrNickname(args[1]);
@@ -978,16 +1092,6 @@ public class Commands implements CommandExecutor {
 					sender.sendMessage(msg);
 					c.leader_get().sendMessage(msg);
 					Legendchat.getTemporaryChannelManager().deleteTempChannel(c);
-					return true;
-				}
-				else if(args[0].equalsIgnoreCase("listtempchannels")) {
-					if(!sender.hasPermission("legendchat.admin.tempchannel")&&!sender.hasPermission("legendchat.admin")) {
-						sender.sendMessage(Legendchat.getMessageManager().getMessage("error6"));
-						return true;
-					}
-					sender.sendMessage(Legendchat.getMessageManager().getMessage("tc_list1"));
-					for(TemporaryChannel c : Legendchat.getTemporaryChannelManager().getAllTempChannels())
-						sender.sendMessage(Legendchat.getMessageManager().getMessage("tc_list2").replace("@name", c.getName()).replace("@nick", c.getNickname()).replace("@leader", c.leader_get().getName()));
 					return true;
 				}
 				if(!hasAnyPermission(sender)) {
@@ -1010,9 +1114,7 @@ public class Commands implements CommandExecutor {
 			sender.sendMessage(msg2.replace("@command", "/lc playerch <player> <channel>").replace("@description", "Change player channel"));
 		if(Legendchat.getConfigManager().getTemporaryChannelConfig().isTemporaryChannelsEnabled()) {
 			if(sender.hasPermission("legendchat.admin.tempchannel")||sender.hasPermission("legendchat.admin"))
-				sender.sendMessage(msg2.replace("@command", "/lc deltempchannel <channel>").replace("@description", "Delete a temp channel"));
-			if(sender.hasPermission("legendchat.admin.tempchannel")||sender.hasPermission("legendchat.admin"))
-				sender.sendMessage(msg2.replace("@command", "/lc listtempchannels").replace("@description", "List all temp channels"));
+				sender.sendMessage(msg2.replace("@command", "/lc deltc <channel>").replace("@description", "Delete a temp channel"));
 		}
 		if(sender.hasPermission("legendchat.admin.spy")||sender.hasPermission("legendchat.admin"))
 			sender.sendMessage(msg2.replace("@command", "/lc spy").replace("@description", "Listen to all channels"));
@@ -1071,6 +1173,7 @@ public class Commands implements CommandExecutor {
 		sender.sendMessage(msg2.replace("@command", "/tc leader [channel]").replace("@description", "Show the leader"));
 		sender.sendMessage(msg2.replace("@command", "/tc mods [channel]").replace("@description", "List all moderators"));
 		sender.sendMessage(msg2.replace("@command", "/tc members [channel]").replace("@description", "List all members"));
+		sender.sendMessage(msg2.replace("@command", "/tc list [page]").replace("@description", "List all channels"));
 		sender.sendMessage(msg2.replace("@command", "/tc invite <player> [channel]").replace("@description", "Invite to channel"));
 		sender.sendMessage(msg2.replace("@command", "/tc kick <player> [channel]").replace("@description", "Kick from channel"));
 		sender.sendMessage(msg2.replace("@command", "/tc mychannels").replace("@description", "List your channels"));

@@ -1,6 +1,6 @@
 package br.com.devpaulo.legendchat.api.events;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -8,29 +8,31 @@ import org.bukkit.event.HandlerList;
 public class PrivateMessageEvent extends Event implements Cancellable {
 	private static final HandlerList handlers = new HandlerList();
 	private boolean cancelled = false;
-	private Player sender = null;
-	private Player receiver = null;
+	private CommandSender sender = null;
+	private CommandSender receiver = null;
 	private String message = "";
-	public PrivateMessageEvent(Player sender, Player receiver, String message) {
+	public PrivateMessageEvent(CommandSender sender, CommandSender receiver, String message) {
 		this.sender=sender;
 		this.receiver=receiver;
 		this.message=message;
 	}
 	
-	public Player getSender() {
+	public CommandSender getSender() {
 		return sender;
 	}
 
-	public void setSender(Player sender) {
-		this.sender = sender;
+	public void setSender(CommandSender sender) {
+		if(sender!=null)
+			this.sender = sender;
 	}
 
-	public Player getReceiver() {
+	public CommandSender getReceiver() {
 		return receiver;
 	}
 
-	public void setReceiver(Player receiver) {
-		this.receiver = receiver;
+	public void setReceiver(CommandSender receiver) {
+		if(receiver!=null)
+			this.receiver = receiver;
 	}
 
 	public String getMessage() {
@@ -38,7 +40,10 @@ public class PrivateMessageEvent extends Event implements Cancellable {
 	}
 
 	public void setMessage(String message) {
-		this.message = message;
+		if(message==null)
+			this.message="";
+		else
+			this.message = message;
 	}
 
 	public boolean isCancelled() {

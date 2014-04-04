@@ -2,6 +2,7 @@ package br.com.devpaulo.legendchat.channels.types;
 
 import java.util.List;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public interface Channel {
@@ -35,7 +36,30 @@ public interface Channel {
 	
 	public List<Player> getPlayersWhoCanSeeChannel();
 	
+	public void sendMessage(String message);
+	
 	public void sendMessage(Player sender, String message);
 	
 	public void sendMessage(Player sender, String message, String bukkit_format, boolean cancelled);
+	
+	public void setNickname(String nickname);
+	
+	public void setFormat(String format);
+	
+	public void setColor(ChatColor color);
+	
+	public void setShortcutAllowed(boolean shortcut);
+	
+	public void setFocusNeeded(boolean focus);
+	
+	public void setCrossworlds(boolean crossworlds);
+	
+	public void setMaxDistance(double distance);
+	
+	public void setMessageCost(double cost);
+	public void setCostPerMessage(double cost);
+	
+	public void setShowCostMessage(boolean show);
+	
+	public void setDelayPerMessage(int delay);
 }

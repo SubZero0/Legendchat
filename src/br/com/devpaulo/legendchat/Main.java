@@ -15,11 +15,14 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
+import com.google.common.io.Files;
+
 import br.com.devpaulo.legendchat.api.Legendchat;
 import br.com.devpaulo.legendchat.channels.types.BungeecordChannel;
 import br.com.devpaulo.legendchat.channels.types.PermanentChannel;
 import br.com.devpaulo.legendchat.commands.Commands;
 import br.com.devpaulo.legendchat.listeners.Listeners;
+import br.com.devpaulo.legendchat.listeners.Listeners_old;
 import br.com.devpaulo.legendchat.updater.Updater;
 
 public class Main extends JavaPlugin implements PluginMessageListener {
@@ -45,7 +48,12 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 		getServer().getPluginCommand("afk").setExecutor(new Commands());
 		getServer().getPluginCommand("ignore").setExecutor(new Commands());
 		getServer().getPluginCommand("tempchannel").setExecutor(new Commands());
-		getServer().getPluginManager().registerEvents(new Listeners(), this);
+		getServer().getPluginCommand("mute").setExecutor(new Commands());
+		
+		if(getConfig().getBoolean("use_async_chat_event",true))
+			getServer().getPluginManager().registerEvents(new Listeners(), this);
+		else
+			getServer().getPluginManager().registerEvents(new Listeners_old(), this);
 		
 		getServer().getMessenger().registerOutgoingPluginChannel(this, "Legendchat");
         getServer().getMessenger().registerIncomingPluginChannel(this, "Legendchat", this);
@@ -86,13 +94,18 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 		if(new Updater().updateConfig())
 			getLogger().info("Configuration file updated!");
 		
-		try {File file2 = new File(getDataFolder(),"language_br.yml");if(!file2.exists()) {saveResource("language_br.yml",false);getLogger().info("Saved language_br.yml");}}
+		new File(getDataFolder(),"language").mkdir();
+		for(File f : getDataFolder().listFiles())
+			if(f.getName().startsWith("language_"))
+				try {Files.move(new File(getDataFolder(),f.getName()), new File(getDataFolder(),"language"+File.separator+f.getName()));} catch(Exception e) {}
+		
+		try {if(!new File(getDataFolder(),"language"+File.separator+"language_br.yml").exists()) {saveResource("language"+File.separator+"language_br.yml",false);getLogger().info("Saved language_br.yml");}}
 		catch(Exception e) {}
-		try {File file2 = new File(getDataFolder(),"language_en.yml");if(!file2.exists()) {saveResource("language_en.yml",false);getLogger().info("Saved language_en.yml");}}
+		try {if(!new File(getDataFolder(),"language"+File.separator+"language_en.yml").exists()) {saveResource("language"+File.separator+"language_en.yml",false);getLogger().info("Saved language_en.yml");}}
 		catch(Exception e) {}
-		try {File file2 = new File(getDataFolder(),"language_cn.yml");if(!file2.exists()) {saveResource("language_cn.yml",false);getLogger().info("Saved language_cn.yml");}}
+		try {if(!new File(getDataFolder(),"language"+File.separator+"language_cn.yml").exists()) {saveResource("language"+File.separator+"language_cn.yml",false);getLogger().info("Saved language_cn.yml");}}
 		catch(Exception e) {}
-		try {File file2 = new File(getDataFolder(),"temporary_channels.yml");if(!file2.exists()) {saveResource("temporary_channels.yml",false);getLogger().info("Saved temporary_channels.yml");}}
+		try {if(!new File(getDataFolder(),"temporary_channels.yml").exists()) {saveResource("temporary_channels.yml",false);getLogger().info("Saved temporary_channels.yml");}}
 		catch(Exception e) {}
 		
 		File channels = new File(getDataFolder(),"channels");
@@ -108,9 +121,7 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 		Legendchat.getChannelManager().loadChannels();
 		
 		language=getConfig().getString("language").trim();
-		File lang = new File(getDataFolder(),"language_"+language+".yml");
-		
-		if(new Updater().updateAndLoadLanguage(lang))
+		if(new Updater().updateAndLoadLanguage(language))
 			getLogger().info("Language file updated!");
 		
 		if (!setupPermissions()) {
@@ -137,8 +148,8 @@ public class Main extends JavaPlugin implements PluginMessageListener {
 	        getLogger().info("Hooked to Vault (Chat).");
 		}
 		
-		if(getConfig().getBoolean("bungeecord.use"))
-			if(Legendchat.getChannelManager().existsChannel(getConfig().getString("bungeecord.channel")))
+		if(getConfig().getBoolean("bungeecord.use",false))
+			if(Legendchat.getChannelManager().existsChannel(getConfig().getString("bungeecord.channel","bungeecord")))
 				bungeeActive=true;
 		
 		Legendchat.load(true);

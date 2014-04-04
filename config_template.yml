@@ -13,6 +13,8 @@ show_no_one_hears_you: true
 block_shortcuts_when_cancelled: true
 force_remove_double_spaces_from_bukkit: true
 send_fake_message_to_chat: true
+maintain_spy_mode: false
+use_async_chat_event: true
 text_to_tag: []
 format:
   default: '{color}[{nick}] {groupprefix}{prefix}{bprefix2}{bprefix}&f{sender}{bsuffix}{suffix}{groupsuffix}{color}: {msg}'
@@ -24,4 +26,6 @@ private_message_format:
   spy: '&8[SPY] &f{ignored} &7[{sender} -> {receiver}] {msg}'
 censor:
   use: true
-  censored_words: []
+  censored_words:
+  - censor_with_stars
+  - censor_with_replace;replace_here

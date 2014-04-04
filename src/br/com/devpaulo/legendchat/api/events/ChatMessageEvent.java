@@ -22,17 +22,28 @@ public class ChatMessageEvent extends Event implements Cancellable {
 	private Player sender = null;
 	private Channel ch = null;
 	private String base_format = "";
+	private String bukkit_format = "";
 	private Set<Player> recipients = new HashSet<Player>();
 	private boolean cancelled = false;
 	private HashMap<String,String> tags = new HashMap<String,String>();
-	public ChatMessageEvent(Channel ch, Player sender, String message, String format, String base_format, Set<Player> recipients, HashMap<String,String> tags, boolean cancelled) {
+	public ChatMessageEvent(Channel ch, Player sender, String message, String format, String base_format, String bukkit_format, Set<Player> recipients, HashMap<String,String> tags, boolean cancelled) {
 		this.sender=sender;
 		this.message=message;
 		this.recipients.addAll(recipients);
+		if(tags.values().contains(null)) {
+			List<String> ns = new ArrayList<String>();
+			ns.addAll(tags.keySet());
+			for(String n : ns)
+				if(tags.get(n)==null) {
+					tags.remove(n);
+					tags.put(n, "");
+				}
+		}
 		this.tags.putAll(tags);
 		this.cancelled=cancelled;
 		this.ch=ch;
 		this.base_format=base_format;
+		this.bukkit_format=bukkit_format;
 		this.format=ChatColor.translateAlternateColorCodes('&', format);
 		for(int i=0;i<format.length();i++)
 			if(format.charAt(i)=='{') {
@@ -88,6 +99,10 @@ public class ChatMessageEvent extends Event implements Cancellable {
 		return ch;
 	}
 	
+	public String getBukkitFormat() {
+		return bukkit_format;
+	}
+	
 	public String getBaseFormat() {
 		return base_format;
 	}
@@ -120,6 +135,17 @@ public class ChatMessageEvent extends Event implements Cancellable {
 		if(!tags.containsKey(tag))
 			return null;
 		return tags.get(tag);
+	}
+	
+	public void addTag(String tag, String value) {
+		if(tag==null)
+			return;
+		tag=tag.toLowerCase();
+		if(tags.containsKey(tag))
+			return;
+		if(value==null)
+			value="";
+		tags.put(tag, value);
 	}
 	
 	public HandlerList getHandlers() {

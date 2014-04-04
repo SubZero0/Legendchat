@@ -7,6 +7,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import br.com.devpaulo.legendchat.Main;
+import br.com.devpaulo.legendchat.afk.AfkManager;
 import br.com.devpaulo.legendchat.censor.CensorManager;
 import br.com.devpaulo.legendchat.channels.ChannelManager;
 import br.com.devpaulo.legendchat.channels.TemporaryChannelManager;
@@ -31,6 +32,8 @@ public class Legendchat {
 	private static boolean isBungeecordActive = false;
 	private static boolean isCensorActive = false;
 	private static boolean logToFile = false;
+	private static boolean useAsyncChat = false;
+	private static boolean maintainSpyMode = false;
 	private static int logToFileTime = 10;
 	private static Channel defaultChannel = null;
 	private static BungeecordChannel bungeecordChannel = null;
@@ -51,6 +54,7 @@ public class Legendchat {
 	private static LogManager lm = null;
 	private static TemporaryChannelManager tcm = null;
 	private static ConfigManager com = null;
+	private static AfkManager afk = null;
 	
 	public static ChannelManager getChannelManager() {
 		return cm;
@@ -96,6 +100,10 @@ public class Legendchat {
 		return com;
 	}
 	
+	public static AfkManager getAfkManager() {
+		return afk;
+	}
+	
 	public static Channel getDefaultChannel() {
 		return defaultChannel;
 	}
@@ -134,6 +142,14 @@ public class Legendchat {
 	
 	public static boolean logToFile() {
 		return logToFile;
+	}
+	
+	public static boolean useAsyncChat() {
+		return useAsyncChat;
+	}
+	
+	public static boolean maintainSpyMode() {
+		return maintainSpyMode;
 	}
 	
 	public static int getLogToFileTime() {
@@ -186,22 +202,25 @@ public class Legendchat {
 			lm=new LogManager();
 			tcm=new TemporaryChannelManager();
 			com=new ConfigManager();
+			afk=new AfkManager();
 			return;
 		}
 		FileConfiguration fc = Bukkit.getPluginManager().getPlugin("Legendchat").getConfig();
-		defaultChannel=Legendchat.getChannelManager().getChannelByName(fc.getString("default_channel").toLowerCase());
-		logToBukkit=fc.getBoolean("log_to_bukkit");
-		blockRepeatedTags=fc.getBoolean("block_repeated_tags");
-		showNoOneHearsYou=fc.getBoolean("show_no_one_hears_you");
-		forceRemoveDoubleSpacesFromBukkit=fc.getBoolean("force_remove_double_spaces_from_bukkit");
-		sendFakeMessageToChat=fc.getBoolean("send_fake_message_to_chat");
-		blockShortcutsWhenCancelled=fc.getBoolean("block_shortcuts_when_cancelled");
+		defaultChannel=Legendchat.getChannelManager().getChannelByName(fc.getString("default_channel","local").toLowerCase());
+		logToBukkit=fc.getBoolean("log_to_bukkit",false);
+		blockRepeatedTags=fc.getBoolean("block_repeated_tags",true);
+		showNoOneHearsYou=fc.getBoolean("show_no_one_hears_you",true);
+		forceRemoveDoubleSpacesFromBukkit=fc.getBoolean("force_remove_double_spaces_from_bukkit",true);
+		useAsyncChat=fc.getBoolean("use_async_chat_event",true);
+		sendFakeMessageToChat=fc.getBoolean("send_fake_message_to_chat",true);
+		blockShortcutsWhenCancelled=fc.getBoolean("block_shortcuts_when_cancelled",true);
+		maintainSpyMode=fc.getBoolean("maintain_spy_mode",false);
 		isBungeecordActive=Main.bungeeActive;
-		bungeecordChannel=(BungeecordChannel) getChannelManager().getChannelByName(fc.getString("bungeecord.channel"));
-		isCensorActive=fc.getBoolean("censor.use");
+		bungeecordChannel=(BungeecordChannel) getChannelManager().getChannelByName(fc.getString("bungeecord.channel","bungeecord"));
+		isCensorActive=fc.getBoolean("censor.use",true);
 		Legendchat.getCensorManager().loadCensoredWords(fc.getStringList("censor.censored_words"));
-		logToFile=fc.getBoolean("log_to_file.use");
-		logToFileTime=fc.getInt("log_to_file.time");
+		logToFile=fc.getBoolean("log_to_file.use",false);
+		logToFileTime=fc.getInt("log_to_file.time",10);
 		if(logToFile)
 			lm.startSavingScheduler();
 		language=Main.language;

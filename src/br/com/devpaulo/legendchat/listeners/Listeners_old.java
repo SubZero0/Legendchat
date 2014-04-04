@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
@@ -18,7 +18,8 @@ import br.com.devpaulo.legendchat.Main;
 import br.com.devpaulo.legendchat.api.Legendchat;
 import br.com.devpaulo.legendchat.channels.types.Channel;
 
-public class Listeners implements Listener {
+@SuppressWarnings("deprecation")
+public class Listeners_old implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	private void onJoin(PlayerJoinEvent e) {
 		Legendchat.getPlayerManager().setPlayerFocusedChannel(e.getPlayer(), Legendchat.getDefaultChannel(), false);
@@ -53,36 +54,36 @@ public class Listeners implements Listener {
 		Legendchat.getAfkManager().playerDisconnect(e.getPlayer());
 	}
 	
-	private static HashMap<AsyncPlayerChatEvent,Boolean> chats = new HashMap<AsyncPlayerChatEvent,Boolean>();
+	private static HashMap<PlayerChatEvent,Boolean> chats = new HashMap<PlayerChatEvent,Boolean>();
 	
-	public static HashMap<AsyncPlayerChatEvent, Boolean> getChats() {
-		HashMap<AsyncPlayerChatEvent,Boolean> clone = new HashMap<AsyncPlayerChatEvent,Boolean>();
+	public static HashMap<PlayerChatEvent, Boolean> getChats() {
+		HashMap<PlayerChatEvent,Boolean> clone = new HashMap<PlayerChatEvent,Boolean>();
 		clone.putAll(chats);
 		return clone;
 	}
 
-	public static void addFakeChat(AsyncPlayerChatEvent e, Boolean b) {
+	public static void addFakeChat(PlayerChatEvent e, Boolean b) {
 		if(!chats.containsKey(e))
 			chats.put(e, b);
 	}
 	
-	public static void removeFakeChat(AsyncPlayerChatEvent e) {
+	public static void removeFakeChat(PlayerChatEvent e) {
 		if(chats.containsKey(e))
 			chats.remove(e);
 	}
 	
-	public static boolean hasFakeChat(AsyncPlayerChatEvent e) {
+	public static boolean hasFakeChat(PlayerChatEvent e) {
 		return chats.containsKey(e);
 	}
 	
-	public static boolean getFakeChat(AsyncPlayerChatEvent e) {
+	public static boolean getFakeChat(PlayerChatEvent e) {
 		if(chats.containsKey(e))
 			return chats.get(e);
 		return true;
 	}
 	
 	@EventHandler(ignoreCancelled = false, priority = EventPriority.LOWEST)
-	private void onChat(AsyncPlayerChatEvent e) {
+	private void onChat(PlayerChatEvent e) {
 		HashMap<String,String> ttt = Legendchat.textToTag();
 		if(ttt.size()>0) {
 			String new_format = "°1º°";
@@ -96,7 +97,7 @@ public class Listeners implements Listener {
 	}
 	
 	@EventHandler(ignoreCancelled = false, priority = EventPriority.MONITOR)
-	private void onChat2(AsyncPlayerChatEvent e) {
+	private void onChat2(PlayerChatEvent e) {
 		if(e.getMessage()!=null&&!chats.containsKey(e)&&!e.isCancelled()) {
 			Legendchat.getAfkManager().removeAfk(e.getPlayer());
 			if(Legendchat.getPrivateMessageManager().isPlayerTellLocked(e.getPlayer())) {

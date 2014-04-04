@@ -1,7 +1,7 @@
 name: Legendchat
 author: SubZero0
 main: br.com.devpaulo.legendchat.Main
-version: 1.1.0
+version: 1.1.2
 softdepend: [Vault]
 load: STARTUP
 website: www.devpaulo.com.br
@@ -17,7 +17,7 @@ commands:
    tell:
       description: Send a private message.
       usage: /<command> <player> <message>
-      aliases: [msg, pm, t]
+      aliases: [msg, pm, t, whisper, w]
    reply:
       description: Reply a private message.
       usage: /<command> <message>
@@ -32,3 +32,6 @@ commands:
       description: Temporary channel main command.
       usage: /<command>
       aliases: tc
+   mute:
+      description: Ignore a channel.
+      usage: /<command> <channel>
